@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Experiment</title>
+    <script src="https://unpkg.com/jspsych@7.3.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey@0.2.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <link href="https://unpkg.com/jspsych@7.3.1/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://unpkg.com/@jspsych/plugin-survey@0.2.1/css/survey.css">
+  </head>
+  <body></body>
+  <script>
+
+    // SCENARIOS TEXT
+    // e.g. C3 indicates High-Cost version of Scenario 3
+    const N2 = "Imagine you are moving out of your apartment. You’ve carried all but one of the boxes down the stairs to the moving truck. The final box is heavier than the rest. You can move it by yourself, but it’s cumbersome, so you knock on your neighbor’s door to ask for help. Your neighbor kindly obliges.";
+    const C2 = "Imagine you are moving out of your apartment. You’ve carried all but one of the boxes down the stairs to the moving truck. The final box is heavier than the rest. You can move it by yourself, but it's cumbersome, so you knock on your neighbor’s door to ask for help. Your neighbor kindly obliges. As it happens, your neighbor sustained a wrist injury a couple weeks ago and is still recovering. He is worried that helping you may put undue strain on his wrist, but he sees you struggling and helps anyway.";
+    const B2 = "Imagine you are moving out of your apartment. You’ve carried all but one of the boxes down the stairs to the moving truck. The final box is heavier than the rest. As it happens, you sustained a wrist injury a couple weeks ago and you’re still recovering. Though you had no problem with the other boxes, you’re worried this box will put undue strain on your wrist. You knock on your neighbor’s door to ask for help. Your neighbor kindly obliges.";
+    const N3 = "Imagine, you are cooking a meal in an apartment which you share with a roommate. You had a long day and are exhausted. The dishes still remain dirty in the kitchen. Your roommate notices your exhaustion and offers to clean them. You agree.";
+    const C3 = "Imagine, you are cooking a meal in an apartment which you share with a roommate. You had a long day and are exhausted. The dishes still remain dirty in the kitchen.  Your roommate notices your exhaustion and offers to clean them. You agree. They do not tell you this, but as a result of offering to do the dishes they show up late to a close friend's birthday.";
+    const B3 = "Imagine, you are cooking a meal in an apartment which you share with a roommate. You had a long day and are exhausted. The dishes still remain dirty in the kitchen.  Your roommate notices your exhaustion and offers to clean them. You agree. You are incredibly thankful because you would have been late to a friend's birthday if they had not agreed.";
+
+    const DAY_TEXT = "<br><br><em>It is now the next day.</em>";
+    const WEEK_TEXT = "<br><br><em>It is now a week later.</em>";
+    const MONTH_TEXT = "<br><br><em>It is now a month later.</em>";
+
+
+    // QUESTION OBJECT CONSTRUCTION
+    // e.g. WB3 indicates the High-Benefit version of Scenario 3 from one week ago
+    const DN2 = {time: "D", version: "N", scenario: 2, tag: "DN2", question_text: N2 + " " + DAY_TEXT};
+    const DN3 = {time: "D", version: "N", scenario: 3, tag: "DN3", question_text: N3 + " " + DAY_TEXT};
+    const DC2 = {time: "D", version: "C", scenario: 2, tag: "DC2", question_text: C2 + " " + DAY_TEXT};
+    const DC3 = {time: "D", version: "C", scenario: 3, tag: "DC3", question_text: C3 + " " + DAY_TEXT};
+    const DB2 = {time: "D", version: "B", scenario: 2, tag: "DB2", question_text: B2 + " " + DAY_TEXT};
+    const DB3 = {time: "D", version: "B", scenario: 3, tag: "DB3", question_text: B3 + " " + DAY_TEXT};
+    const WN2 = {time: "W", version: "N", scenario: 2, tag: "WN2", question_text: N2 + " " + WEEK_TEXT};
+    const WN3 = {time: "W", version: "N", scenario: 3, tag: "WN3", question_text: N3 + " " + WEEK_TEXT};
+    const WC2 = {time: "W", version: "C", scenario: 2, tag: "WC2", question_text: C2 + " " + WEEK_TEXT};
+    const WC3 = {time: "W", version: "C", scenario: 3, tag: "WC3", question_text: C3 + " " + WEEK_TEXT};
+    const WB2 = {time: "W", version: "B", scenario: 2, tag: "WB2", question_text: B2 + " " + WEEK_TEXT};
+    const WB3 = {time: "W", version: "B", scenario: 3, tag: "WB3", question_text: B3 + " " + WEEK_TEXT};
+    const MN2 = {time: "M", version: "N", scenario: 2, tag: "MN2", question_text: N2 + " " + MONTH_TEXT};
+    const MN3 = {time: "M", version: "N", scenario: 3, tag: "MN3", question_text: N3 + " " + MONTH_TEXT};
+    const MC2 = {time: "M", version: "C", scenario: 2, tag: "MC2", question_text: C2 + " " + MONTH_TEXT};
+    const MC3 = {time: "M", version: "C", scenario: 3, tag: "MC3", question_text: C3 + " " + MONTH_TEXT};
+    const MB2 = {time: "M", version: "B", scenario: 2, tag: "MB2", question_text: B2 + " " + MONTH_TEXT};
+    const MB3 = {time: "M", version: "B", scenario: 3, tag: "MB3", question_text: B3 + " " + MONTH_TEXT};
+
+    const TREATMENT_GROUPS = [
+      [[DN2, DN3], [DC2, DC3]],
+      [[WN2, WN3], [WC2, WC3]],
+      [[MN2, MN3], [MC2, MC3]],
+      [[DN2, DN3], [DB2, DB3]],
+      [[WN2, WN3], [WB2, WB3]],
+      [[MN2, MN3], [MB2, MB3]]
+    ]
+1
+    const N_MODULES = 6; // use this to set the number of times for the progress bar to progress
+
+    const jsPsych = initJsPsych({
+        experiment_width: 600,
+        show_progress_bar: true,
+        auto_update_progress_bar: false,
+        // on_finish: ()=>{jsPsych.data.displayData();}
+      });
+
+    // capture info from Prolific
+    var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+    var session_id = jsPsych.data.getURLVariable('SESSION_ID');
+    if(subject_id==undefined) {subject_id = `fake_data_${jsPsych.randomization.randomID(5)}`;}
+
+
+    jsPsych.data.addProperties({
+      subject_id: subject_id,
+      study_id: study_id,
+      session_id: session_id
+    });
+
+    async function runExperiment(){
+
+      const timeline = []
+
+
+      // assignment to one of 6 groups. Set CONDITIONs to 6, for 6 TREATMENT_GROUPS elements (indexed 0 to 11)
+      const condition = await jsPsychPipe.getCondition("iuf0OdrjOiyp");
+      console.log('Condition: ', condition);
+
+      // flag variable to track if participant is offered a favor at end of study
+      const favorable = false // no participant in this version recieves follow up
+
+      const group = TREATMENT_GROUPS[condition]
+      jsPsych.data.addProperties({
+        time_variable: group[0][0].time,
+        modification: group[1][0].version,
+        favor: favorable
+      })
+
+      let questions1 = group[0].sort((a,b) => a.scenario-b.scenario) // this is a list of jsObjects
+      let questions2 = group[1].sort((a,b) => a.scenario-b.scenario)
+      const ORDER = randOrder([0,1]) // CHANGE IF THERE ARE MORE THAN 2 SCENARIOS
+
+      let scenario_index = 0
+
+      const instructions = {
+        type: jsPsychInstructions,
+        pages: [
+          `Thank you for registering for this study!`,
+          `In this study you will be presented with scenarios in which you have either received or requested help from another person. For each scenario, you will answer the following 3 questions:<ul><li><em>On a 1 to 7 scale, from strongly disagree to strongly agree, I believe that I now owe the other person a favor?</em></li><br><li><em>On a 1 to 7 scale, from not at all costly to extremely costly, how costly (ie: risky, effortful, expensive, inconvenient, time consuming) was this favor?</em></li><br><li><em>On a 1 to 7 scale, from not at all beneficial to extremely beneficial, how beneficial (ie: helpful or useful) was this favor?</em></li></ul>`,
+          `Afterwards, we'll ask you a few more questions. Click 'Next' when you're ready to begin.`,
+        ],
+        show_clickable_nav: true,
+        data: {
+          task: 'instructions'
+        },
+        on_start: function() {
+            jsPsych.setProgressBar(0);
+        }
+      };
+      timeline.push(instructions)
+
+      function randOrder(arr){
+        let arr_copy = [...arr];
+        let retArr = [];
+        while(arr_copy.length > 1){
+          let index = Math.floor(Math.random() * arr_copy.length);
+          retArr.push(arr_copy.splice(index,1)[0]);
+        }
+        retArr.push(arr_copy[0]);
+        return retArr;
+      }
+      function reOrderQuestions(arr_input, order){
+        let arr = [...arr_input];
+        let retArr = [];
+        if (Array.isArray(order)) {
+          order.forEach(e => {
+            retArr.push(arr[e]);
+          });
+        }
+        return retArr;
+      }
+      function progress(perc){
+        var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
+        jsPsych.setProgressBar(curr_progress_bar_value + (perc/100));
+      }
+
+      const survey_trial = {
+        type: jsPsychSurvey,
+        button_label_finish: "Continue",
+        required_question_label: "*",
+        on_start: () => {
+          console.log(jsPsych.timelineVariable('time'),jsPsych.timelineVariable('version'), jsPsych.timelineVariable('scenario'));
+        },
+        pages: [
+          [
+            {
+              type: 'html',
+              prompt: () => {
+                return `${jsPsych.timelineVariable('question_text')}`;
+              }
+            },
+            {
+              type: 'likert',
+              name: 'q_reciprocity',
+              required: true, // UNCOMMENT
+              prompt: 'On a 1 to 7 scale, from strongly disagree to strongly agree, I believe that I now owe the other person a favor?',
+              likert_scale_values: [
+                {value: 1, text: "1"},
+                {value: 2, text: "2"},
+                {value: 3, text: "3"},
+                {value: 4, text: "4"},
+                {value: 5, text: "5"},
+                {value: 6, text: "6"},
+                {value: 7, text: "7"}
+              ]
+            },
+            {
+              type: 'likert',
+              name: 'q_cost',
+              required: true, // UNCOMMENT
+              prompt: 'On a 1 to 7 scale, from not at all costly to extremely costly, how costly (ie: risky, effortful, expensive, inconvenient, time consuming) was this favor?',
+              likert_scale_values: [
+                {value: 1, text: "1"},
+                {value: 2, text: "2"},
+                {value: 3, text: "3"},
+                {value: 4, text: "4"},
+                {value: 5, text: "5"},
+                {value: 6, text: "6"},
+                {value: 7, text: "7"}
+              ]
+            },
+            {
+              type: 'likert',
+              name: 'q_benefit',
+              required: true, // UNCOMMENT
+              prompt: 'On a 1 to 7 scale, from not at all beneficial to extremely beneficial, how beneficial (ie: helpful or useful) was this favor?',
+              likert_scale_values: [
+                {value: 1, text: "1"},
+                {value: 2, text: "2"},
+                {value: 3, text: "3"},
+                {value: 4, text: "4"},
+                {value: 5, text: "5"},
+                {value: 6, text: "6"},
+                {value: 7, text: "7"}
+              ]
+            }
+          ]
+        ],
+        data: {
+          task: "survey_trial"
+        },
+        on_finish: (data) => {
+          data.q_reciprocity = data.response.q_reciprocity;
+          data.q_cost = data.response.q_cost;
+          data.q_benefit = data.response.q_benefit;
+          data.scenario = jsPsych.timelineVariable('scenario');
+          data.scenario_version = jsPsych.timelineVariable('version');
+          scenario_index += 1;
+          data.scenario_index = scenario_index;
+          progress(100.0/N_MODULES);
+        }
+      };
+
+      const commitment1 = {
+        type: jsPsychSurveyMultiChoice,
+        preamble: '<p style="text-align: left">We care about the quality of our survey data. For us to get the most acurate measures of your opinions, it is important that you provide thoughtful answers to each question in this survey.</p>',
+        questions: [
+          {
+            prompt: 'Do you commit to providing thoughtful answers to the questions in this survey?',
+            name: 'commitment',
+            options: ["I can't promise either way", 'Yes, I will', 'No, I will not'],
+            required: true
+          }],
+        data: {
+          task: "commitment-check",
+        },
+        on_finish: (data) => {
+          data.response = data.response.commitment;
+          data.committed = jsPsych.pluginAPI.compareKeys(data.response, 'Yes, I will');
+        }
+      }
+      timeline.push(commitment1);
+
+      const trials = {
+        timeline: [
+          {
+            timeline: [survey_trial],
+            timeline_variables: reOrderQuestions(questions1, ORDER),
+            data: {
+              trial_block: "control"
+            }
+          },
+          {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: "You will now see modified versions of the previous scenarios.",
+            choices: [`Continue &#8594;`],
+            data: {
+              task: "transition"
+            }
+          },
+          {
+            timeline: [survey_trial],
+            timeline_variables: reOrderQuestions(questions2, ORDER),
+            data: {
+              trial_block: "modified"
+            }
+          }
+        ]
+      }
+      timeline.push(trials);
+
+      var gps = {
+        type: jsPsychSurvey,
+        button_label_finish: "Continue",
+        required_question_label: "*",
+        pages: [
+          [
+            {
+              type: 'html',
+              prompt: '<b>A few more questions for you before you go:</b>'
+            },
+            {
+              type: 'likert',
+              name: 'q_altruism',
+              required: true, // UNCOMMENT
+              prompt: 'If you have $10 in your hand, how willing are you to give to good causes without expecting anything in return?',
+              likert_scale_values: [
+                {value: 0, text: "$0"},
+                {value: 1, text: "$1"},
+                {value: 2, text: "$2"},
+                {value: 3, text: "$3"},
+                {value: 4, text: "$4"},
+                {value: 5, text: "$5"},
+                {value: 6, text: "$6"},
+                {value: 7, text: "$7"},
+                {value: 8, text: "$8"},
+                {value: 9, text: "$9"},
+                {value: 10, text: "$10"}
+              ]
+            },
+            {
+              type: 'likert',
+              name: 'q_risk',
+              required: true, // UNCOMMENT
+              prompt: 'Using a scale from 0 to 10, where 0 means you are “completely unwilling to take risks” and 10 means you are “very willing to take risks.” How willing or unwilling are you to take risks?',
+              likert_scale_values: [
+                {value: 0, text: "0"},
+                {value: 1, text: "1"},
+                {value: 2, text: "2"},
+                {value: 3, text: "3"},
+                {value: 4, text: "4"},
+                {value: 5, text: "5"},
+                {value: 6, text: "6"},
+                {value: 7, text: "7"},
+                {value: 8, text: "8"},
+                {value: 9, text: "9"},
+                {value: 10, text: "10"}
+              ]
+
+            },
+            {
+              type: 'html',
+              prompt: '<b>How well does each of the following statements describe you as a person? You can use any number between 0 and 10 to indicate where you fall on the scale.</b>'
+            },
+            {
+              type: 'likert',
+              name: 'q_positive_reciprocity',
+              required: true, // UNCOMMENT
+              prompt: 'When someone does me a favor, I am willing to return it.',
+              likert_scale_values: [
+                {value: 0, text: "0"},
+                {value: 1, text: "1"},
+                {value: 2, text: "2"},
+                {value: 3, text: "3"},
+                {value: 4, text: "4"},
+                {value: 5, text: "5"},
+                {value: 6, text: "6"},
+                {value: 7, text: "7"},
+                {value: 8, text: "8"},
+                {value: 9, text: "9"},
+                {value: 10, text: "10"}
+              ]
+            },
+            {
+              type: 'likert',
+              name: 'q_negative_reciprocity',
+              required: true, // UNCOMMENT
+              prompt: 'If I am treated very unjustly, I will take revenge at the first occasion, even if there is a cost to do so. ',
+              likert_scale_values: [
+                {value: 0, text: "0"},
+                {value: 1, text: "1"},
+                {value: 2, text: "2"},
+                {value: 3, text: "3"},
+                {value: 4, text: "4"},
+                {value: 5, text: "5"},
+                {value: 6, text: "6"},
+                {value: 7, text: "7"},
+                {value: 8, text: "8"},
+                {value: 9, text: "9"},
+                {value: 10, text: "10"}
+              ]
+            },
+            {
+              type: 'likert',
+              name: 'q_trust',
+              required: true, // UNCOMMENT
+              prompt: 'I assume that people have only the best intentions.',
+              likert_scale_values: [
+                {value: 0, text: "0"},
+                {value: 1, text: "1"},
+                {value: 2, text: "2"},
+                {value: 3, text: "3"},
+                {value: 4, text: "4"},
+                {value: 5, text: "5"},
+                {value: 6, text: "6"},
+                {value: 7, text: "7"},
+                {value: 8, text: "8"},
+                {value: 9, text: "9"},
+                {value: 10, text: "10"}
+              ]
+            }
+          ]
+        ],
+        on_finish: (data) => {
+          data.q_altruism = data.response.q_altruism;
+          data.q_risk = data.response.q_risk;
+          data.q_positive_reciprocity = data.response.q_positive_reciprocity;
+          data.q_negative_reciprocity = data.response.q_negative_reciprocity;
+          data.q_trust = data.response.q_trust;
+          progress(100.0/N_MODULES);
+        },
+        data: {
+          task: "gps"
+        }
+
+      }
+      timeline.push(gps);
+
+      const commitment2 = {
+        type: jsPsychSurveyMultiChoice,
+        preamble: '<p style="text-align: left">As mentioned, data quality is important. As the participant, you have the best knowledge of the quality of your answers.</p>',
+        questions: [
+          {
+            prompt: 'If you were the researcher, would you want your data included in the dataset? Your pay will not be affected.',
+            name: 'quality',
+            options: ["Yes, I attest the quality of the data.", 'No, my data should probably be left out.'],
+            required: true
+          }],
+        data: {
+          task: "quality-check",
+        },
+        on_finish: (data) => {
+          data.response = data.response.quality;
+          data.committed = !jsPsych.pluginAPI.compareKeys(data.response, 'No, my data should probably be left out.');
+        }
+      }
+      timeline.push(commitment2);
+
+      var comments = {
+        type: jsPsychSurveyText,
+        preamble: `As a participant, you may have noticed something that we didn't account for or experienced something while completing the form that you think we should know about. Let us know here! Again, pay is not affected.`,
+        questions: [
+          {prompt: 'Any comments on the study?', rows: 5}
+        ],
+        data: {
+          task: "comments"
+        },
+        on_finish: (data) => {
+          data.response = data.response.Q0;
+          progress(100.0/N_MODULES);
+        }
+      }
+      timeline.push(comments)
+
+      const save_data = {
+        type: jsPsychPipe,
+        action: "save",
+        experiment_id: "iuf0OdrjOiyp",
+        filename: `${subject_id}.csv`,
+        data_string: ()=>jsPsych.data.get().csv()
+      };
+      timeline.push(save_data)
+
+      const survey_complete_screen = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `<p>You've finished the last task. Thanks for participating!</p>`,
+        choices: ['Return to Prolific'],
+        data: {
+          task: 'complete'
+        },
+        on_finish: function(){
+          window.location = "https://app.prolific.co/submissions/complete?cc=C12WIBUW"
+        }
+      }
+      timeline.push(survey_complete_screen);
+
+      jsPsych.run(timeline);
+    }
+
+    runExperiment();
+
+
+  </script>
+</html>
